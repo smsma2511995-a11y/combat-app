@@ -62,3 +62,24 @@ class WorkoutScreen extends StatelessWidget {
     );
   }
 }
+import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+
+void main() {
+  runApp(FightTrainingApp());
+}
+
+class FightTrainingApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Fight Training App',
+      theme: ThemeData.dark().copyWith(
+        primaryColor: Colors.orange,
+        scaffoldBackgroundColor: Colors.black,
+      ),
+      home: HomeScreen(),
+    );
+  }
+}
