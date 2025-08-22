@@ -1,3 +1,4 @@
+
 name: fight_training_app
 description: A simple martial arts training app with exercises and diet plan.
 publish_to: 'none'
@@ -15,4 +16,4 @@ flutter:
   assets:
     - assets/images/
     - assets/diet/
-    - assests/sounds/
+    - assets/sounds/
