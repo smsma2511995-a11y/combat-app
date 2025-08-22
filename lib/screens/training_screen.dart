@@ -3,6 +3,95 @@ import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 class TrainingScreen extends StatefulWidget {
+  final List<Map<String, dynamic>> exercises;
+  TrainingScreen({required this.exercises});
+
+  @override
+  _TrainingScreenState createState() => _TrainingScreenState();
+}
+
+class _TrainingScreenState extends State<TrainingScreen> {
+  final player = AudioPlayer();
+  int currentExercise = 0;
+  Timer? timer;
+  int timeLeft = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    startExercise();
+  }
+
+  void startExercise() async {
+    if (currentExercise >= widget.exercises.length) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("💪 خلصت التمرين كله!")),
+      );
+      return;
+    }
+
+    final exercise = widget.exercises[currentExercise];
+    timeLeft = exercise["duration"];
+
+    // صوت البداية
+    await player.play(AssetSource("sounds/bell_start.mp3"));
+
+    // تشغيل الدليل الصوتي
+    await Future.delayed(Duration(seconds: 1));
+    await player.play(AssetSource("sounds/${exercise['file']}"));
+
+    // عداد زمني
+    timer?.cancel();
+    timer = Timer.periodic(Duration(seconds: 1), (t) async {
+      setState(() => timeLeft--);
+
+      if (timeLeft <= 0) {
+        t.cancel();
+        await player.play(AssetSource("sounds/bell_end.mp3"));
+        setState(() => currentExercise++);
+        Future.delayed(Duration(seconds: 2), () {
+          startExercise();
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    player.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (currentExercise >= widget.exercises.length) {
+      return Scaffold(
+        appBar: AppBar(title: Text("Training")),
+        body: Center(child: Text("🎉 مبروك! خلصت كل التمارين")),
+      );
+    }
+
+    final exercise = widget.exercises[currentExercise];
+    return Scaffold(
+      appBar: AppBar(title: Text("Training")),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(exercise["name"], style: TextStyle(fontSize: 28, color: Colors.orange)),
+            SizedBox(height: 20),
+            Text("⏱️ باقي $timeLeft ثانية", style: TextStyle(fontSize: 22)),
+          ],
+        ),
+      ),
+    );
+  }
+}import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:audioplayers/audioplayers.dart';
+
+class TrainingScreen extends StatefulWidget {
   @override
   _TrainingScreenState createState() => _TrainingScreenState();
 }
