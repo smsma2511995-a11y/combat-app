@@ -270,3 +270,81 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     );
   }
 }
+// lib/screens/exercises_screen.dart
+import 'package:flutter/material.dart';
+import '../data/training_plan.dart';
+
+class ExercisesScreen extends StatelessWidget {
+  const ExercisesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Training Plan"),
+        backgroundColor: Colors.black87,
+      ),
+      body: ListView.builder(
+        itemCount: trainingPlan.length,
+        itemBuilder: (context, monthIndex) {
+          final month = trainingPlan[monthIndex];
+          return ExpansionTile(
+            title: Text("Month ${month.monthNumber}",
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            children: month.weeks.map((week) {
+              return ExpansionTile(
+                title: Text("Week ${week.weekNumber}",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+                children: week.days.map((day) {
+                  return ListTile(
+                    title: Text(day.title,
+                        style: const TextStyle(fontSize: 15)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DayExercisesScreen(day: day),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// شاشة تعرض التمارين اليومية
+class DayExercisesScreen extends StatelessWidget {
+  final TrainingDay day;
+
+  const DayExercisesScreen({super.key, required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(day.title),
+        backgroundColor: Colors.deepOrange,
+      ),
+      body: ListView.builder(
+        itemCount: day.exercises.length,
+        itemBuilder: (context, index) {
+          return Card(
+            margin: const EdgeInsets.all(10),
+            child: ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.blue),
+              title: Text(day.exercises[index]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
