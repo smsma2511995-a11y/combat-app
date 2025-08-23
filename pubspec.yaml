@@ -17,3 +17,25 @@ flutter:
     - assets/images/
     - assets/diet/
     - assets/sounds/
+name: fight_training_app
+description: A complete offline martial arts trainer with TTS, timed drills, and diet tips (Arabic).
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_tts: ^3.8.3
+  audioplayers: ^5.2.1
+  provider: ^6.0.5
+  shared_preferences: ^2.2.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/diet/
+    - assets/sounds/
