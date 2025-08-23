@@ -58,3 +58,7 @@ flutter:
     - assets/images/
     - assets/diet/
     - assets/sounds/
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_tts: ^3.6.3
