@@ -544,3 +544,99 @@ class _DayExercisesScreenState extends State<DayExercisesScreen> {
     );
   }
 }
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import '../data/exercises_data.dart';
+
+class ExercisesScreen extends StatefulWidget {
+  const ExercisesScreen({Key? key}) : super(key: key);
+
+  @override
+  _ExercisesScreenState createState() => _ExercisesScreenState();
+}
+
+class _ExercisesScreenState extends State<ExercisesScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+
+  Future<void> _speak(String text) async {
+    await flutterTts.setLanguage("ar-SA"); // عربي
+    await flutterTts.setPitch(1.0);
+    await flutterTts.speak(text);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("تمارين الفنون القتالية"),
+        backgroundColor: Colors.black87,
+      ),
+      body: ListView.builder(
+        itemCount: exercises.length,
+        itemBuilder: (context, index) {
+          final exercise = exercises[index];
+          return Card(
+            margin: const EdgeInsets.all(10),
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // صورة التمرين
+                ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                  child: Image.asset(
+                    exercise.imagePath,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // الاسم
+                      Text(
+                        exercise.name,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // الوصف
+                      Text(
+                        exercise.description,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      // زر الصوت
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.volume_up, color: Colors.blue, size: 28),
+                          onPressed: () {
+                            _speak("${exercise.name}: ${exercise.description}");
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
