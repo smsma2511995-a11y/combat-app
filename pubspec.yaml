@@ -39,3 +39,22 @@ flutter:
     - assets/images/
     - assets/diet/
     - assets/sounds/
+name: fight_training_app
+description: A simple martial arts training app with exercises and diet plan.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.17.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_tts: ^3.6.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/diet/
+    - assets/sounds/
