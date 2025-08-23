@@ -1,1 +1,36 @@
-
+assets/
+  images/
+    # حط هنا كل الـ GIF/PNG للحركات (خصمين/ثنائية)
+    # مثال:
+    wingchun_bong_sau.gif
+    wingchun_pak_sau.gif
+    karate_age_uke.gif
+    karate_gedan_barai.gif
+    tkd_dollyo.gif
+    tkd_yeop.gif
+    judo_osoto_gari.gif
+    bjj_armbar.gif
+    ninja_roll.gif
+    street_knife_defense.gif
+    ...ك
+  sounds/
+    bell_start.mp3
+    bell_end.mp3
+  diet/
+    cheap_bulk_foods.png     # اختياري لصور إرشادية
+    hydration.png
+lib/
+  main.dart
+  app.dart
+  models/exercise.dart
+  data/exercises.dart
+  services/tts_service.dart
+  services/audio_service.dart
+  services/settings_service.dart
+  screens/home_screen.dart
+  screens/exercise_player_screen.dart
+  screens/diet_screen.dart
+  screens/tips_screen.dart
+  screens/settings_screen.dart
+  widgets/side_drawer.dart
+  widgets/exercise_card.dart
