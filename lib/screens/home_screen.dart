@@ -134,3 +134,100 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 }
+import 'package:flutter/material.dart';
+import 'exercises_screen.dart';
+import 'diet_screen.dart';
+// تقدر تضيف شاشات جديدة زي flexibility_screen.dart, ninja_screen.dart وهكذا
+
+class HomeScreen extends StatelessWidget {
+  const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Fight Training App"),
+        backgroundColor: Colors.black87,
+      ),
+      body: GridView.count(
+        crossAxisCount: 2,
+        padding: const EdgeInsets.all(16),
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+        children: [
+          // زر التمارين
+          _buildHomeCard(
+            context,
+            title: "التمارين",
+            icon: Icons.fitness_center,
+            color: Colors.red,
+            screen: const ExercisesScreen(),
+          ),
+
+          // زر التغذية
+          _buildHomeCard(
+            context,
+            title: "التغذية",
+            icon: Icons.restaurant,
+            color: Colors.green,
+            screen: const DietScreen(),
+          ),
+
+          // زر المرونة
+          _buildHomeCard(
+            context,
+            title: "المرونة",
+            icon: Icons.accessibility_new,
+            color: Colors.blue,
+            screen: const ExercisesScreen(), // مؤقتًا نفس شاشة التمارين
+          ),
+
+          // زر النينجا / الدفاع
+          _buildHomeCard(
+            context,
+            title: "النينجا",
+            icon: Icons.sports_martial_arts,
+            color: Colors.purple,
+            screen: const ExercisesScreen(), // مؤقتًا نفس شاشة التمارين
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeCard(BuildContext context,
+      {required String title,
+      required IconData icon,
+      required Color color,
+      required Widget screen}) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => screen),
+        );
+      },
+      child: Card(
+        color: color.withOpacity(0.9),
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 50, color: Colors.white),
+              const SizedBox(height: 12),
+              Text(
+                title,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
