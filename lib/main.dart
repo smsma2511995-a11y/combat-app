@@ -110,3 +110,23 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+import 'package:flutter/material.dart';
+import 'screens/home_screen.dart';
+
+void main() {
+  runApp(const FightTrainingApp());
+}
+
+class FightTrainingApp extends StatelessWidget {
+  const FightTrainingApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Fight Training App',
+      theme: ThemeData(primarySwatch: Colors.blue),
+      home: const HomeScreen(),
+    );
+  }
+}
