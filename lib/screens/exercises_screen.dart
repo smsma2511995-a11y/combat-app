@@ -348,3 +348,99 @@ class DayExercisesScreen extends StatelessWidget {
     );
   }
 }
+// lib/screens/exercises_screen.dart
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import '../data/training_plan.dart';
+
+class ExercisesScreen extends StatelessWidget {
+  const ExercisesScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Training Plan"),
+        backgroundColor: Colors.black87,
+      ),
+      body: ListView.builder(
+        itemCount: trainingPlan.length,
+        itemBuilder: (context, monthIndex) {
+          final month = trainingPlan[monthIndex];
+          return ExpansionTile(
+            title: Text("Month ${month.monthNumber}",
+                style: const TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold)),
+            children: month.weeks.map((week) {
+              return ExpansionTile(
+                title: Text("Week ${week.weekNumber}",
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.w600)),
+                children: week.days.map((day) {
+                  return ListTile(
+                    title: Text(day.title,
+                        style: const TextStyle(fontSize: 15)),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DayExercisesScreen(day: day),
+                        ),
+                      );
+                    },
+                  );
+                }).toList(),
+              );
+            }).toList(),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class DayExercisesScreen extends StatefulWidget {
+  final TrainingDay day;
+
+  const DayExercisesScreen({super.key, required this.day});
+
+  @override
+  State<DayExercisesScreen> createState() => _DayExercisesScreenState();
+}
+
+class _DayExercisesScreenState extends State<DayExercisesScreen> {
+  final FlutterTts flutterTts = FlutterTts();
+
+  Future<void> _speak(String text) async {
+    await flutterTts.setLanguage("ar-SA"); // اللغة: عربي سعودي
+    await flutterTts.setPitch(1.0);        // طبقة الصوت
+    await flutterTts.speak(text);          // ينطق النص
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.day.title),
+        backgroundColor: Colors.deepOrange,
+      ),
+      body: ListView.builder(
+        itemCount: widget.day.exercises.length,
+        itemBuilder: (context, index) {
+          final exercise = widget.day.exercises[index];
+          return Card(
+            margin: const EdgeInsets.all(10),
+            child: ListTile(
+              leading: const Icon(Icons.fitness_center, color: Colors.blue),
+              title: Text(exercise),
+              trailing: IconButton(
+                icon: const Icon(Icons.volume_up, color: Colors.green),
+                onPressed: () => _speak(exercise),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
