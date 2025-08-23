@@ -1,4 +1,808 @@
-// lib/main.dart
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const FightTrainingApp());
+}
+
+/// نموذج تمرين
+class Exercise {
+  final String id;
+  final String title;
+  final String category; // Karate / WingChun / TKD / Ninja / Street / Fitness / Flexibility / Judo / BJJ / Weapons
+  final int defaultSeconds; // وقت افتراضي
+  final String ttsScript; // إرشاد صوتي بالعربي
+  final String? imagePath; // اختياري
+
+  Exercise({
+    required this.id,
+    required this.title,
+    required this.category,
+    required this.defaultSeconds,
+    required this.ttsScript,
+    this.imagePath,
+  });
+}
+
+/// قوائم التمارين (مجموعة كبيرة موزعة أقسام)
+final List<Exercise> allExercises = [
+  // ---------- إحماء ولياقة عامة ----------
+  Exercise(
+    id: 'fit01',
+    title: 'قفز خفيف بالمكان',
+    category: 'Fitness',
+    defaultSeconds: 40,
+    ttsScript:
+        'ابدأ قفز خفيف بالمكان. خليك على أطراف قدمك، كتافك مرتاحة، وتنفس بعمق.',
+  ),
+  Exercise(
+    id: 'fit02',
+    title: 'سكيبتنج – رفع الركبة',
+    category: 'Fitness',
+    defaultSeconds: 40,
+    ttsScript:
+        'ارفع الركبتين بالتبادل حتى مستوى الحوض، حافظ على جذع مستقيم، استمر بإيقاع ثابت.',
+  ),
+  Exercise(
+    id: 'fit03',
+    title: 'ضغط صدر (Push-ups)',
+    category: 'Fitness',
+    defaultSeconds: 30,
+    ttsScript:
+        'حط يديك تحت الكتفين، جسمك خط مستقيم، انزل بهدوء واطلع مع الزفير. جودة الحركة أهم من السرعة.',
+  ),
+  Exercise(
+    id: 'fit04',
+    title: 'بلانك ثابت',
+    category: 'Fitness',
+    defaultSeconds: 30,
+    ttsScript:
+        'ثبت الجسم بوضع البلانك. شدّ البطن والعضلات الخلفية. حافظ على التنفس هادي.',
+  ),
+  Exercise(
+    id: 'fit05',
+    title: 'سكوات بوزن الجسم',
+    category: 'Fitness',
+    defaultSeconds: 40,
+    ttsScript:
+        'افتح القدمين بمستوى الكتفين، انزل بالحوض للخلف، ركبتك ما تتعداش مشط القدم. اطلع بقوة وتحكم.',
+  ),
+
+  // ---------- مرونة وفتح حوض ----------
+  Exercise(
+    id: 'flex01',
+    title: 'إطالة أوتار خلفية',
+    category: 'Flexibility',
+    defaultSeconds: 30,
+    ttsScript:
+        'ميل للأمام من مفصل الحوض، ضهرك طويل، أوصل بإيدك لمشط القدم إن أمكن بدون ألم.',
+  ),
+  Exercise(
+    id: 'flex02',
+    title: 'فتح حوض جانبي بسيط',
+    category: 'Flexibility',
+    defaultSeconds: 30,
+    ttsScript:
+        'افتح القدمين واسع، انقل الوزن ناحية اليسار ببطء مع ثبات الظهر، بدّل للجهة الأخرى بعد منتصف الوقت.',
+  ),
+  Exercise(
+    id: 'flex03',
+    title: 'إطالة عضلات الفخذ الأمامية',
+    category: 'Flexibility',
+    defaultSeconds: 30,
+    ttsScript:
+        'امسك كعب القدم ناحية المقعدة برفق، ركبتين جنب بعض، ادفع الحوض للأمام قليلًا.',
+  ),
+
+  // ---------- كاراتيه: ركلات + بلوكات + كيهون ----------
+  Exercise(
+    id: 'kar01',
+    title: 'Age Uke (بلوك علوي)',
+    category: 'Karate',
+    defaultSeconds: 30,
+    ttsScript:
+        'ارفع الساعد للأعلى بزاوية تحمي الرأس، الكوع قريب من الجسم. جرّب يمين وشمال.',
+  ),
+  Exercise(
+    id: 'kar02',
+    title: 'Gedan Barai (بلوك سفلي)',
+    category: 'Karate',
+    defaultSeconds: 30,
+    ttsScript:
+        'اسحب الذراع المقابلة وتحت الجذع، ونفّذ ضربة مسحوبة لأسفل لصد الركلات المنخفضة.',
+  ),
+  Exercise(
+    id: 'kar03',
+    title: 'Mawashi Geri (ركلة دائرية)',
+    category: 'Karate',
+    defaultSeconds: 40,
+    ttsScript:
+        'ارفع الركبة، لفّ الورك، ووجه مشط القدم لهدف جانبي. حافظ على توازن اليدين.',
+  ),
+  Exercise(
+    id: 'kar04',
+    title: 'Yoko Geri (ركلة جانبية)',
+    category: 'Karate',
+    defaultSeconds: 40,
+    ttsScript:
+        'ارفع الركبة للصدر ثم ادفع الكعب بقوة في خط مستقيم ناحية الهدف، ارجع الرجل بتحكم.',
+  ),
+
+  // ---------- تايكوندو: كومبو ----------
+  Exercise(
+    id: 'tkd01',
+    title: 'كومبو 1: جاب-كروس + ركلة أمامية',
+    category: 'Taekwondo',
+    defaultSeconds: 45,
+    ttsScript:
+        'جاب بسرعة، كروس بقوة، ثم ركلة أمامية مباشرة للوسط. ركّز على رجوع اليدين للحماية.',
+  ),
+  Exercise(
+    id: 'tkd02',
+    title: 'كومبو 2: مراوغة جانبية + ركلة دائرية',
+    category: 'Taekwondo',
+    defaultSeconds: 45,
+    ttsScript:
+        'تحرّك نصف خطوة يمين لتفادي اللكمة ثم نفّذ ركلة دائرية على القفص الصدري.',
+  ),
+
+  // ---------- وينج تشون ----------
+  Exercise(
+    id: 'wc01',
+    title: 'Pak Sau + ضرب مستقيم',
+    category: 'WingChun',
+    defaultSeconds: 40,
+    ttsScript:
+        'ادفع يد الخصم جانبًا بباك ساو ثم اضرب مستقيمًا في المركز. قصير وسريع.',
+  ),
+  Exercise(
+    id: 'wc02',
+    title: 'Bong Sau للدفاع ضد اللكمة',
+    category: 'WingChun',
+    defaultSeconds: 40,
+    ttsScript:
+        'ارفع الساعد ليحوّل مسار اللكمة للخارج، حافظ على الكوع عالي قليلًا والتوازن للأمام.',
+  ),
+  Exercise(
+    id: 'wc03',
+    title: 'Chi Sau – تلامس الأيدي',
+    category: 'WingChun',
+    defaultSeconds: 60,
+    ttsScript:
+        'تبادل اللمس مع شريك، حافظ على حساسية الذراعين، غيّر الزوايا بسلاسة.',
+  ),
+
+  // ---------- جودو / جيوجيتسو ----------
+  Exercise(
+    id: 'judo01',
+    title: 'Osoto Gari (رمي خارجي)',
+    category: 'Judo',
+    defaultSeconds: 45,
+    ttsScript:
+        'اسحب الخصم للأمام قطريًا، ادخل بقدمك للخلف واقطع قدمه من الخارج مع دفع الكتف.',
+  ),
+  Exercise(
+    id: 'bjj01',
+    title: 'Juji Gatame (آرم لوك)',
+    category: 'BJJ',
+    defaultSeconds: 45,
+    ttsScript:
+        'ثبّت الذراع، ضمّ الركبتين، ارفع الحوض ببطء لتحصيل الإخضاع. تحكّم ولا تعوّر شريكك.',
+  ),
+
+  // ---------- نينجا / دفاع عن النفس ----------
+  Exercise(
+    id: 'ninja01',
+    title: 'تفادي هجوم سكين جانبي',
+    category: 'Ninja',
+    defaultSeconds: 45,
+    ttsScript:
+        'ابتعد قطريًا عن خط السكين، أمسِك المعصم، لف الذراع للأعلى واضرب المعصم لإسقاط السلاح ثم ابتعد.',
+  ),
+  Exercise(
+    id: 'street01',
+    title: 'فك إمساك من الخلف',
+    category: 'Street',
+    defaultSeconds: 45,
+    ttsScript:
+        'انزل بالثقل لأسفل، ادر الكتفين بقوة، اضرب كعب القدم على مشط الخصم ثم افلت وابتعد.',
+  ),
+
+  // ---------- أسلحة (عصا) ----------
+  Exercise(
+    id: 'wep01',
+    title: 'عصا – ضربة مستقيمة',
+    category: 'Weapons',
+    defaultSeconds: 30,
+    ttsScript:
+        'ثبت قبضة العصا، اضرب بخط مستقيم نحو الهدف، وارجع بسرعة لوضع الحماية.',
+  ),
+];
+
+/// خرائط الأيقونات لكل قسم
+const Map<String, IconData> categoryIcons = {
+  'Fitness': Icons.fitness_center,
+  'Flexibility': Icons.accessibility_new,
+  'Karate': Icons.sports_kabaddi,
+  'Taekwondo': Icons.sports_martial_arts,
+  'WingChun': Icons.front_hand,
+  'Judo': Icons.sports_kabaddi,
+  'BJJ': Icons.sports_mma,
+  'Ninja': Icons.visibility_off,
+  'Street': Icons.shield,
+  'Weapons': Icons.sports_kabaddi,
+};
+
+class FightTrainingApp extends StatelessWidget {
+  const FightTrainingApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'مدرب الفنون القتالية',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData.dark().copyWith(
+        colorScheme: const ColorScheme.dark(primary: Color(0xFFFF6600)),
+      ),
+      home: const HomeScreen(),
+    );
+  }
+}
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String? selectedCategory; // null => الكل
+  List<Exercise> get filtered {
+    if (selectedCategory == null) return allExercises;
+    return allExercises.where((e) => e.category == selectedCategory).toList();
+  }
+
+  final categories = [
+    'Fitness',
+    'Flexibility',
+    'Karate',
+    'Taekwondo',
+    'WingChun',
+    'Judo',
+    'BJJ',
+    'Ninja',
+    'Street',
+    'Weapons',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('مدرب الفنون القتالية - أوفلاين'),
+        ),
+        drawer: Drawer(
+          child: SafeArea(
+            child: ListView(
+              children: [
+                const ListTile(
+                  title: Text('الأقسام'),
+                  leading: Icon(Icons.category),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.all_inclusive),
+                  title: const Text('الكل'),
+                  selected: selectedCategory == null,
+                  onTap: () => setState(() => selectedCategory = null),
+                ),
+                ...categories.map((c) => ListTile(
+                      leading: Icon(categoryIcons[c] ?? Icons.star),
+                      title: Text(c),
+                      selected: selectedCategory == c,
+                      onTap: () => setState(() => selectedCategory = c),
+                    )),
+                const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.playlist_play),
+                  title: const Text('ابدأ برنامج اليوم السريع'),
+                  onTap: () {
+                    // برنامج سريع: إحماء + فن قتالي + لياقة + مرونة
+                    final plan = [
+                      'fit01',
+                      'kar01',
+                      'tkd01',
+                      'wc01',
+                      'fit03',
+                      'flex01',
+                    ];
+                    final list = allExercises
+                        .where((e) => plan.contains(e.id))
+                        .toList();
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => PlayerScreen(routine: list),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: ListView.builder(
+          padding: const EdgeInsets.all(12),
+          itemCount: filtered.length,
+          itemBuilder: (_, i) {
+            final ex = filtered[i];
+            return Card(
+              margin: const EdgeInsets.symmetric(vertical: 8),
+              child: ListTile(
+                leading: CircleAvatar(
+                  child: Icon(categoryIcons[ex.category] ?? Icons.sports),
+                ),
+                title: Text(ex.title),
+                subtitle: Text(ex.category),
+                trailing: const Icon(Icons.chevron_left),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PlayerScreen(routine: [ex]),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          icon: const Icon(Icons.queue_play_next),
+          label: const Text('كوّن روتين مخصص'),
+          onPressed: () async {
+            final list = await Navigator.push<List<Exercise>>(
+              context,
+              MaterialPageRoute(builder: (_) => BuilderScreen()),
+            );
+            if (list != null && list.isNotEmpty) {
+              if (!mounted) return;
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlayerScreen(routine: list),
+                ),
+              );
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// شاشة تكوين روتين مخصص
+class BuilderScreen extends StatefulWidget {
+  @override
+  State<BuilderScreen> createState() => _BuilderScreenState();
+}
+
+class _BuilderScreenState extends State<BuilderScreen> {
+  final Set<String> selectedIds = {};
+  @override
+  Widget build(BuildContext context) {
+    final cats = allExercises.map((e) => e.category).toSet().toList();
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('كوّن روتينك'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                final routine = allExercises
+                    .where((e) => selectedIds.contains(e.id))
+                    .toList();
+                Navigator.pop(context, routine);
+              },
+              child: const Text('ابدأ', style: TextStyle(color: Colors.white)),
+            )
+          ],
+        ),
+        body: ListView(
+          children: [
+            for (final c in cats)
+              ExpansionTile(
+                leading: Icon(categoryIcons[c] ?? Icons.sports),
+                title: Text(c),
+                children: [
+                  for (final e in allExercises.where((x) => x.category == c))
+                    CheckboxListTile(
+                      value: selectedIds.contains(e.id),
+                      onChanged: (v) {
+                        setState(() {
+                          if (v == true) {
+                            selectedIds.add(e.id);
+                          } else {
+                            selectedIds.remove(e.id);
+                          }
+                        });
+                      },
+                      title: Text(e.title),
+                      subtitle: Text('وقت افتراضي: ${e.defaultSeconds} ثانية'),
+                    ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// شاشة التشغيل: TTS + تايمر + تحكم سرعة + السابق/التالي
+class PlayerScreen extends StatefulWidget {
+  final List<Exercise> routine;
+  const PlayerScreen({super.key, required this.routine});
+
+  @override
+  State<PlayerScreen> createState() => _PlayerScreenState();
+}
+
+class _PlayerScreenState extends State<PlayerScreen> {
+  final FlutterTts tts = FlutterTts();
+  int index = 0;
+  bool playing = false;
+  Timer? timer;
+  int secondsLeft = 0;
+
+  // تحكم عام
+  int globalSeconds = 0; // 0 يعني غير مفعل
+  int speedLevel = 5; // 1..10
+  bool autoRest = true;
+  int restSeconds = 15;
+
+  Exercise get current => widget.routine[index];
+
+  @override
+  void initState() {
+    super.initState();
+    _initTts();
+    _loadExercise();
+  }
+
+  Future<void> _initTts() async {
+    await tts.setLanguage('ar-SA'); // عربي
+    await tts.setVolume(1.0);
+    await _applySpeed();
+  }
+
+  Future<void> _applySpeed() async {
+    // نحول 1..10 إلى 0.3..1.0
+    final rate = 0.2 + (speedLevel / 10) * 0.8;
+    await tts.setSpeechRate(rate.clamp(0.2, 1.0));
+    await tts.setPitch(1.0);
+  }
+
+  void _loadExercise() {
+    timer?.cancel();
+    secondsLeft = (globalSeconds > 0) ? globalSeconds : current.defaultSeconds;
+    setState(() {});
+  }
+
+  Future<void> _speakStart() async {
+    await tts.stop();
+    await tts.speak('جرس البداية. ابدأ التمرين الآن: ${current.title}.');
+    await tts.speak(current.ttsScript);
+  }
+
+  Future<void> _speakEnd() async {
+    await tts.stop();
+    await tts.speak('انتهى التمرين. جرس النهاية.');
+  }
+
+  void _startTimer() {
+    playing = true;
+    _speakStart();
+    timer = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      setState(() {
+        if (secondsLeft > 0) {
+          secondsLeft--;
+          // عدّ تنازلي صوتي بسيط كل 10 ثواني
+          if (secondsLeft % 10 == 0 && secondsLeft > 0) {
+            tts.speak('متبقي ${secondsLeft} ثانية.');
+          }
+        } else {
+          _onExerciseEnd();
+        }
+      });
+    });
+    setState(() {});
+  }
+
+  Future<void> _onExerciseEnd() async {
+    timer?.cancel();
+    await _speakEnd();
+    if (autoRest && restSeconds > 0) {
+      await tts.speak('استراحة ${restSeconds} ثانية.');
+      int r = restSeconds;
+      timer = Timer.periodic(const Duration(seconds: 1), (t) {
+        if (!mounted) return;
+        setState(() {
+          if (r > 0) {
+            r--;
+            if (r == 5) tts.speak('متبقي خمس ثواني للاستراحة.');
+          } else {
+            t.cancel();
+            _next();
+          }
+        });
+      });
+    } else {
+      _next();
+    }
+  }
+
+  void _pause() {
+    playing = false;
+    timer?.cancel();
+    tts.stop();
+    setState(() {});
+  }
+
+  void _next() {
+    _pause();
+    if (index < widget.routine.length - 1) {
+      index++;
+      _loadExercise();
+      _startTimer();
+    } else {
+      tts.speak('انتهى برنامج اليوم. أحسنت العمل!');
+      setState(() {});
+    }
+  }
+
+  void _prev() {
+    _pause();
+    if (index > 0) {
+      index--;
+      _loadExercise();
+    }
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    tts.stop();
+    tts.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final total = widget.routine.length;
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('${current.category} • ${index + 1}/$total'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () => _openSettings(context),
+            )
+          ],
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              // صورة أو رمز
+              Container(
+                height: 180,
+                width: double.infinity,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: Colors.black26,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: current.imagePath == null
+                    ? Icon(
+                        categoryIcons[current.category] ?? Icons.sports,
+                        size: 72,
+                      )
+                    : Image.asset(current.imagePath!, fit: BoxFit.contain),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                current.title,
+                style:
+                    const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                current.ttsScript,
+                style: const TextStyle(fontSize: 16, color: Colors.white70),
+              ),
+              const Spacer(),
+              // عداد
+              Text(
+                _format(secondsLeft),
+                style:
+                    const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              // أزرار التحكم
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    iconSize: 36,
+                    onPressed: _prev,
+                    icon: const Icon(Icons.skip_previous),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton.icon(
+                    icon: Icon(playing ? Icons.pause : Icons.play_arrow),
+                    label: Text(playing ? 'إيقاف مؤقت' : 'ابدأ التمرين'),
+                    onPressed: () {
+                      if (playing) {
+                        _pause();
+                      } else {
+                        _startTimer();
+                      }
+                    },
+                  ),
+                  const SizedBox(width: 12),
+                  IconButton(
+                    iconSize: 36,
+                    onPressed: _next,
+                    icon: const Icon(Icons.skip_next),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              // سرعة الصوت
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('سرعة الصوت: $speedLevel/10'),
+                  Slider(
+                    value: speedLevel.toDouble(),
+                    min: 1,
+                    max: 10,
+                    divisions: 9,
+                    label: '$speedLevel',
+                    onChanged: (v) async {
+                      speedLevel = v.toInt();
+                      await _applySpeed();
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              // ضبط الوقت لهذا التمرين
+              Row(
+                children: [
+                  const Text('وقت التمرين (ث): '),
+                  Expanded(
+                    child: Slider(
+                      value: secondsLeft.toDouble(),
+                      min: 10,
+                      max: 120,
+                      divisions: 22,
+                      label: '$secondsLeft',
+                      onChanged: (v) {
+                        setState(() => secondsLeft = v.toInt());
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'إرجاع للوقت الافتراضي',
+                    onPressed: () => setState(() => secondsLeft =
+                        (globalSeconds > 0)
+                            ? globalSeconds
+                            : current.defaultSeconds),
+                    icon: const Icon(Icons.restore),
+                  )
+                ],
+              ),
+              const SizedBox(height: 8),
+              // استراحة
+              Row(
+                children: [
+                  Switch(
+                    value: autoRest,
+                    onChanged: (v) => setState(() => autoRest = v),
+                  ),
+                  const Text('استراحة تلقائية'),
+                  const SizedBox(width: 12),
+                  if (autoRest) ...[
+                    const Text('مدة الاستراحة: '),
+                    SizedBox(
+                      width: 80,
+                      child: TextFormField(
+                        initialValue: '$restSeconds',
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) =>
+                            setState(() => restSeconds = int.tryParse(v) ?? 15),
+                      ),
+                    )
+                  ]
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openSettings(BuildContext context) async {
+    await showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (_) {
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('إعدادات سريعة',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Text('وقت عام لكل التمارين: '),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        initialValue:
+                            globalSeconds == 0 ? '' : '$globalSeconds',
+                        decoration: const InputDecoration(
+                          hintText: 'اتركه فارغ لتعطيل الوقت العام',
+                          border: OutlineInputBorder(),
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (v) {
+                          globalSeconds = int.tryParse(v) ?? 0;
+                          _loadExercise();
+                          setState(() {});
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.check),
+                  label: const Text('تم'),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  String _format(int s) {
+    final m = (s ~/ 60).toString().padLeft(2, '0');
+    final ss = (s % 60).toString().padLeft(2, '0');
+    return '$m:$ss';
+  }
+}// lib/main.dart
 import 'package:flutter/material.dart';
 import 'app.dart';
 
